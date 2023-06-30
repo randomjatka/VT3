@@ -4,14 +4,46 @@ body {
 }
 
 form {
-   width: 30%;
+   width: 25%;
+   border: solid orange 2px;
+   padding: 1%;
+   padding-bottom: 2%;
+}
+
+fieldset {
+   min-width: 50%; 
 }
 
 label {
    display: block;
-   padding: 0.5em;
+   padding: 1%;
 }
 
 input {
    float: right;
+   padding-left: 5%;
+   min-width: 25%;
+   max-width: 50%;
+}
+
+div {
+   margin-top: 5%;
+}
+
+p {
+   margin-left: 1%;
+   display: inline;
+}
+
+div>label {
+   float: right;
+   clear: both;
+   padding-top: 0%;
+}
+
+input[type="submit"] {
+   float: left;
+   font-weight: bold;
+   padding-left: 0%;
+   min-width: 20%;
 }
