@@ -1,0 +1,17 @@
+body {
+   background-color: white;
+   color: black;
+}
+
+form {
+   width: 30%;
+}
+
+label {
+   display: block;
+   padding: 0.5em;
+}
+
+input {
+   float: right;
+}
