@@ -50,6 +50,38 @@ function alustus() {
 function start(data) {
   // tänne oma koodi
   console.log(data);
+
+  let ul = document.createElement("ul");
+  let kohdeLomake = document.forms[0];
+  //let li = document.createElement("li");
+  //ul.appendChild(li);
+
+  /*let viiteSarjat = {}
+  for (let sarja of data.sarjat) {
+    sarja.id = sarja.kesto;
+  }
+  */
+  
+  
+  // Tässä kaksoissilmukassa luodaan kaikki joukkuelistaukset ja jokaiselle joukkueelle kaikki jäsenet
+  for (let joukkue of data.joukkueet) {
+    //console.log(joukkue.nimi);
+    let li = document.createElement("li");
+    let viiteSarja = data.sarjat.find(element => element.id == joukkue.sarja).kesto;
+    li.textContent = "Joukkue " + joukkue.nimi + " " + viiteSarja + " h";
+    let ulkaksi = document.createElement("ul");
+    for (let jasen of joukkue.jasenet) {
+      let likaksi = document.createElement("li");
+      likaksi.textContent = "Jäsen " + jasen;
+      ulkaksi.appendChild(likaksi);
+    }
+    li.appendChild(ulkaksi);
+    ul.appendChild(li);
+  }
+
+  kohdeLomake.appendChild(ul);
+
+  
   // tallenna data sen mahdollisten muutosten jälkeen aina localStorageen: 
   // localStorage.setItem("TIEA2120-vt3-2023", JSON.stringify(data));
   // kts ylempää mallia

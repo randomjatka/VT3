@@ -7,7 +7,7 @@ form {
    width: 25%;
    border: solid orange 2px;
    padding: 1%;
-   padding-bottom: 2%;
+   padding-bottom: 2em;
 }
 
 fieldset {
@@ -21,7 +21,7 @@ label {
 
 input {
    float: right;
-   padding-left: 5%;
+   padding-right: 8%;
    min-width: 25%;
    max-width: 50%;
 }
@@ -44,6 +44,6 @@ div>label {
 input[type="submit"] {
    float: left;
    font-weight: bold;
-   padding-left: 0%;
-   min-width: 20%;
+   padding: 0%;
+   min-width: 15%;
 }
