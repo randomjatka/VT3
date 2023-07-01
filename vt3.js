@@ -62,10 +62,41 @@ function start(data) {
     sarja.id = sarja.kesto;
   }
   */
+
+  // Tehdään kopio joukkueista ja sisäiset kopioit jokaisen joukkueen jäsenistä jotta niiden järjestäminen ei sekoita alkuperäistä dataa
+  let joukkueJarjestys = Array.from(data.joukkueet);
+  for (let i=0; i<data.joukkueet.length-1; i++) {
+    joukkueJarjestys[i].jasenet = Array.from(data.joukkueet[i].jasenet);
+  }
+
+  // Tällä funktiolla järjestetään joukkueet aakkosjärjestykseen.
+  function joukkueJarjestamisfunktio(a,b){
+		let tulos = a.nimi.localeCompare(b.nimi, 'fi', {sensitivity: 'base'});
+		if (tulos) {
+			return tulos;
+		}
+		return false;
+	}
+
+  function jasenienJarjestys(a,b){
+    let tulos = a.localeCompare(b, 'fi', {sensitivity: 'base'});
+    if (tulos) {
+      return tulos;
+    }
+    return false;
+  }
+
+  joukkueJarjestys.sort(joukkueJarjestamisfunktio);
+  for (let jarjestettava of joukkueJarjestys) {
+    jarjestettava.jasenet.sort(jasenienJarjestys);
+  }
+
+  // Järjestetyt joukkueet tarkistus
+  console.log(joukkueJarjestys);
   
   
   // Tässä kaksoissilmukassa luodaan kaikki joukkuelistaukset ja jokaiselle joukkueelle kaikki jäsenet
-  for (let joukkue of data.joukkueet) {
+  for (let joukkue of joukkueJarjestys) {
     //console.log(joukkue.nimi);
     let li = document.createElement("li");
     let viiteSarja = data.sarjat.find(element => element.id == joukkue.sarja).kesto;
