@@ -70,22 +70,50 @@ function start(data) {
   let lomakkeenTarkistukset = function lomakkeenTarkistukset(e) {
     e.preventDefault();
     
-    console.log("Lomakkeen submitti toimi!");
+    //console.log("Lomakkeen submitti toimi!");
     // Etsitään lomakkeen jäsenet
     let jasenTaulukko = [];
     for (let syotekentta of kohdeLomake) {
       if (syotekentta.name == "jasen") {
-        jasenTaulukko.push(syotekentta.value);
+        if (syotekentta.value != "") {jasenTaulukko.push(syotekentta.value);}
       }
     }
-    
+    // jos missään jäsenessä ei ollut sisältöä, ei jatketa joukkueen lisäystä
+    // TODO: virheilmoitukset "Joukkueella on altava vähintään yksi jäsen" setCustomValidity() ja reportValidity()
+    if (jasenTaulukko.length<1) {return;}
+    console.log(jasenTaulukko);
 
-    /*for (let i = 1; i<kohdeLomake.length-1; i++) {
-      if (syotekentta.type ="fieldset") {
-        jasenOsio = syotekentta;
-        break;
+    //Katsotaan, että lisättävän joukkueen nimi ei ole tyhjä ja se ei jo löydy pohjadatasta
+    //TODO: reportValidity();
+    if (kohdeLomake[1].value.trim() == "") {
+      console.log("Joukkueen nimi oli tyhjä!");
+      return;
+    }
+    for (let vertausJoukkue of data.joukkueet) {
+      if (kohdeLomake[1].value.trim().localeCompare(vertausJoukkue.nimi.trim(), 'fi', {sensitivity: 'base'}) == 0) {
+        console.log("Löytyi olemassa oleva nimi!");
+        return;
       }
-    }*/
+    }
+
+    //Kun joukkueen syötteet on todettu validiksi, muodostetaan siitä lisättävä tietorakenne
+    let lisattavaJoukkue = {};
+    lisattavaJoukkue.nimi = kohdeLomake[1].value;
+    
+    //Asetetaan joukkueelle id perustuen valittuun radiobuttoniin
+    for (let syotekentta of kohdeLomake) {
+      if (syotekentta.name == "sarja") {
+        if (syotekentta.checked) {
+          console.log(syotekentta.value);
+          lisattavaJoukkue.sarja = syotekentta.value;
+        }
+      }
+    }
+    lisattavaJoukkue.jasenet = jasenTaulukko;
+    lisattavaJoukkue.leimaustapa = [0];
+    lisattavaJoukkue.rastileimaukset = [];
+    data.joukkueet.push(lisattavaJoukkue);
+    console.log(data.joukkueet);
   };
 
   kohdeLomake.addEventListener("submit", lomakkeenTarkistukset);
