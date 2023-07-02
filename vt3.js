@@ -51,7 +51,7 @@ function start(data) {
   // tänne oma koodi
   console.log(data);
 
-  let ul = document.createElement("ul");
+ 
   let kohdeLista = document.getElementById("joukkuelistaukset");
   //let li = document.createElement("li");
   //ul.appendChild(li);
@@ -65,6 +65,61 @@ function start(data) {
   let kohdeLomake = document.forms[0];
   let pohjaSarjat = Array.from(data.sarjat);
   let ekatKentat = kohdeLomake[0];
+
+  let jarjestyswrapperi = function jarjestyswrapperi() {
+    // Tehdään kopio joukkueista ja sisäiset kopioit jokaisen joukkueen jäsenistä jotta niiden järjestäminen ei sekoita alkuperäistä dataa
+  let joukkueJarjestys = Array.from(data.joukkueet);
+  for (let i=0; i<data.joukkueet.length-1; i++) {
+    joukkueJarjestys[i].jasenet = Array.from(data.joukkueet[i].jasenet);
+  }
+
+  // Tällä funktiolla järjestetään joukkueet aakkosjärjestykseen.
+  function joukkueJarjestamisfunktio(a,b){
+		let tulos = a.nimi.localeCompare(b.nimi, 'fi', {sensitivity: 'base'});
+		if (tulos) {
+			return tulos;
+		}
+		return false;
+	}
+
+  function jasenienJarjestys(a,b){
+    let tulos = a.localeCompare(b, 'fi', {sensitivity: 'base'});
+    if (tulos) {
+      return tulos;
+    }
+    return false;
+  }
+
+  joukkueJarjestys.sort(joukkueJarjestamisfunktio);
+  for (let jarjestettava of joukkueJarjestys) {
+    jarjestettava.jasenet.sort(jasenienJarjestys);
+  }
+
+  // Järjestetyt joukkueet tarkistus
+  console.log(joukkueJarjestys);
+  
+  
+  // Tässä kaksoissilmukassa luodaan kaikki joukkuelistaukset ja jokaiselle joukkueelle kaikki jäsenet
+  let ul = document.createElement("ul");
+  for (let joukkue of joukkueJarjestys) {
+    //console.log(joukkue.nimi);
+    let li = document.createElement("li");
+    let viiteSarja = data.sarjat.find(element => element.id == joukkue.sarja).kesto;
+    li.textContent = "Joukkue " + joukkue.nimi;
+    let vahva = document.createElement("strong");
+    vahva.textContent = " " + viiteSarja + " h";
+    li.appendChild(vahva);
+    let ulkaksi = document.createElement("ul");
+    for (let jasen of joukkue.jasenet) {
+      let likaksi = document.createElement("li");
+      likaksi.textContent = "Jäsen " + jasen;
+      ulkaksi.appendChild(likaksi);
+    }
+    li.appendChild(ulkaksi);
+    ul.appendChild(li);
+  }
+  kohdeLista.appendChild(ul);
+  };
 
 
   let lomakkeenTarkistukset = function lomakkeenTarkistukset(e) {
@@ -113,10 +168,22 @@ function start(data) {
     lisattavaJoukkue.leimaustapa = [0];
     lisattavaJoukkue.rastileimaukset = [];
     data.joukkueet.push(lisattavaJoukkue);
-    console.log(data.joukkueet);
+    //console.log(data.joukkueet);
+    // Poistetaan vanha lista, muistaen että poistaessa listan pituus lyhenee koko ajan joten pituus pitää ottaa talteen etukäteen
+	  let listanPituus = kohdeLista.children.length;
+	  for (let i=0; i<listanPituus; i++) {
+	  	kohdeLista.children[0].remove();
+	  }
+    // Kun uusi joukkue on lisätty tietorakenteeseen ja lista putsattu, kutsutaan uudestaan järjestysfunktiota
+    jarjestyswrapperi();
   };
 
   kohdeLomake.addEventListener("submit", lomakkeenTarkistukset);
+
+  // Järjestetään sarjojen kopiotaulukko aakkosjärjestykseen
+  pohjaSarjat.sort((a, b) => {
+    return a.nimi.localeCompare(b.nimi, 'fi', {sensitivity: 'base'});
+  });
 
   // Syötetään pohjadatan sarjat lomakekentiksi
   for (let pohjaSarja of pohjaSarjat) {
@@ -133,58 +200,7 @@ function start(data) {
   // Asetetaan sarjalle oletusvalinta
   kohdeLomake[2].checked = "checked";
 
-  // Tehdään kopio joukkueista ja sisäiset kopioit jokaisen joukkueen jäsenistä jotta niiden järjestäminen ei sekoita alkuperäistä dataa
-  let joukkueJarjestys = Array.from(data.joukkueet);
-  for (let i=0; i<data.joukkueet.length-1; i++) {
-    joukkueJarjestys[i].jasenet = Array.from(data.joukkueet[i].jasenet);
-  }
-
-  // Tällä funktiolla järjestetään joukkueet aakkosjärjestykseen.
-  function joukkueJarjestamisfunktio(a,b){
-		let tulos = a.nimi.localeCompare(b.nimi, 'fi', {sensitivity: 'base'});
-		if (tulos) {
-			return tulos;
-		}
-		return false;
-	}
-
-  function jasenienJarjestys(a,b){
-    let tulos = a.localeCompare(b, 'fi', {sensitivity: 'base'});
-    if (tulos) {
-      return tulos;
-    }
-    return false;
-  }
-
-  joukkueJarjestys.sort(joukkueJarjestamisfunktio);
-  for (let jarjestettava of joukkueJarjestys) {
-    jarjestettava.jasenet.sort(jasenienJarjestys);
-  }
-
-  // Järjestetyt joukkueet tarkistus
-  console.log(joukkueJarjestys);
-  
-  
-  // Tässä kaksoissilmukassa luodaan kaikki joukkuelistaukset ja jokaiselle joukkueelle kaikki jäsenet
-  for (let joukkue of joukkueJarjestys) {
-    //console.log(joukkue.nimi);
-    let li = document.createElement("li");
-    let viiteSarja = data.sarjat.find(element => element.id == joukkue.sarja).kesto;
-    li.textContent = "Joukkue " + joukkue.nimi;
-    let vahva = document.createElement("strong");
-    vahva.textContent = " " + viiteSarja + " h";
-    li.appendChild(vahva);
-    let ulkaksi = document.createElement("ul");
-    for (let jasen of joukkue.jasenet) {
-      let likaksi = document.createElement("li");
-      likaksi.textContent = "Jäsen " + jasen;
-      ulkaksi.appendChild(likaksi);
-    }
-    li.appendChild(ulkaksi);
-    ul.appendChild(li);
-  }
-
-  kohdeLista.appendChild(ul);
+  jarjestyswrapperi();
 
   
   // tallenna data sen mahdollisten muutosten jälkeen aina localStorageen: 
