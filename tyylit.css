@@ -7,7 +7,7 @@ form {
    width: 30%;
    border: solid orange 2px;
    padding: 1%;
-   padding-bottom: 2em;
+   padding-bottom: 2em; 
 }
 
 fieldset {
@@ -26,19 +26,21 @@ input {
    max-width: 50%;
 }
 
-div {
-   margin-top: 5%;
-}
-
 p {
    margin-left: 1%;
    display: inline;
 }
 
-div>label {
+fieldset:first-child>label {
    float: right;
    clear: both;
    padding-top: 0%;
+   width: 30%;
+}
+
+fieldset:first-child>label:nth-child(2) {
+   width: 97%;
+   margin-bottom: 5%;
 }
 
 input[type="submit"] {

@@ -52,7 +52,6 @@ function start(data) {
   console.log(data);
 
   let ul = document.createElement("ul");
-  //let kohdeLomake = document.forms[0];
   let kohdeLista = document.getElementById("joukkuelistaukset");
   //let li = document.createElement("li");
   //ul.appendChild(li);
@@ -62,6 +61,23 @@ function start(data) {
     sarja.id = sarja.kesto;
   }
   */
+
+  let kohdeLomake = document.forms[0];
+  let pohjaSarjat = Array.from(data.sarjat);
+  let ekatKentat = kohdeLomake[0];
+
+  // Syötetään pohjadatan sarjat lomakekentiksi
+  for (let pohjaSarja of pohjaSarjat) {
+    let otsikko = document.createElement("label");
+    otsikko.textContent = pohjaSarja.nimi + " ";
+    let syote = document.createElement("input");
+    syote.type = "radio";
+    syote.name = "sarja";
+    syote.value = pohjaSarja.id;
+    otsikko.appendChild(syote);
+    ekatKentat.appendChild(otsikko);
+
+  }
 
   // Tehdään kopio joukkueista ja sisäiset kopioit jokaisen joukkueen jäsenistä jotta niiden järjestäminen ei sekoita alkuperäistä dataa
   let joukkueJarjestys = Array.from(data.joukkueet);
