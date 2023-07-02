@@ -26,7 +26,7 @@ https://appro.mit.jyu.fi/cgi-bin/view.cgi
 <form action="https://appro.mit.jyu.fi/cgi-bin/view.cgi" method="post">
 <fieldset>
     <legend>Joukkueen tiedot</legend>
-    <label>Nimi <input type="text" name="nimi" value="" /></label>
+    <label>Nimi <input type="text" name="nimi" value="" required="required" /></label>
 <!-- sarjavalinnat pitää luoda datan perusteella eli niitä ei saa suoraan kirjoittaa tähän. Nämä
 ovat vain testaamista varten 
 OMA HUOMIO: MUUTA SARJOJEN NIMET JAVASCRIPTILLA DYNAAMISEKSI
@@ -39,8 +39,10 @@ OMA HUOMIO: MUUTA SARJOJEN NIMET JAVASCRIPTILLA DYNAAMISEKSI
 </fieldset>
 <fieldset>
     <legend>Jäsenet</legend>
-    <label>Jäsen 1 <input type="text" name="jasen" value="" /></label>
-    <label>Jäsen 2 <input type="text" name="jasen" value="" /></label>
+    <!-- Tässä regexpissä sanotaan: mikä tahansa merkki 0 tai n kertaa, sitten sana keskellä, sitten mikä tahansa merkki 0 tai n kertaa, TAI kenttä,
+    jossa ei ole yhtään whitespacea (eli kentässä ei ole yhtään syötettä)-->
+    <label>Jäsen 1 <input type="text" name="jasen" value="" pattern="(.*\w.*|\S)"/></label>
+    <label>Jäsen 2 <input type="text" name="jasen" value="" pattern="(.*\w.*|\S)"/></label>
 </fieldset>
 <label><input type="submit" value="Tallenna"/></label>
 </form>

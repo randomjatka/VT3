@@ -66,6 +66,30 @@ function start(data) {
   let pohjaSarjat = Array.from(data.sarjat);
   let ekatKentat = kohdeLomake[0];
 
+
+  let lomakkeenTarkistukset = function lomakkeenTarkistukset(e) {
+    e.preventDefault();
+    
+    console.log("Lomakkeen submitti toimi!");
+    // Etsitään lomakkeen jäsenet
+    let jasenTaulukko = [];
+    for (let syotekentta of kohdeLomake) {
+      if (syotekentta.name == "jasen") {
+        jasenTaulukko.push(syotekentta.value);
+      }
+    }
+    
+
+    /*for (let i = 1; i<kohdeLomake.length-1; i++) {
+      if (syotekentta.type ="fieldset") {
+        jasenOsio = syotekentta;
+        break;
+      }
+    }*/
+  };
+
+  kohdeLomake.addEventListener("submit", lomakkeenTarkistukset);
+
   // Syötetään pohjadatan sarjat lomakekentiksi
   for (let pohjaSarja of pohjaSarjat) {
     let otsikko = document.createElement("label");
@@ -76,8 +100,10 @@ function start(data) {
     syote.value = pohjaSarja.id;
     otsikko.appendChild(syote);
     ekatKentat.appendChild(otsikko);
-
   }
+
+  // Asetetaan sarjalle oletusvalinta
+  kohdeLomake[2].checked = "checked";
 
   // Tehdään kopio joukkueista ja sisäiset kopioit jokaisen joukkueen jäsenistä jotta niiden järjestäminen ei sekoita alkuperäistä dataa
   let joukkueJarjestys = Array.from(data.joukkueet);
