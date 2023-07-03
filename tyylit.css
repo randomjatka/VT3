@@ -4,7 +4,7 @@ body {
 }
 
 form {
-   width: 30%;
+   width: 35%;
    border: solid orange 2px;
    padding: 1%;
    padding-bottom: 2em; 
@@ -21,7 +21,7 @@ label {
 
 input {
    float: right;
-   padding-right: 8%;
+   padding-right: 12%;
    min-width: 25%;
    max-width: 50%;
 }

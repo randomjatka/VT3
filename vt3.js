@@ -47,25 +47,28 @@ function alustus() {
 }
 
 // oma sovelluskoodi voidaan sijoittaa tähän funktioon
+/**
+ * 
+ * @param {Object} data - pohjadata
+ * @var {Object} kohdeLista - lomake, josta syötteet otetaan uuden joukkueen lisäämiseksi
+ * @var {Array} pohjaSarjat - sarjat, jotka järjestetään ja asetetaan lomakkeeseen
+ * @var {Object} ekatKentat - lomakkeen eka fieldset elementti, joka sisältää nimen ja sarjat
+ * 
+ */
 function start(data) {
   // tänne oma koodi
   console.log(data);
 
  
   let kohdeLista = document.getElementById("joukkuelistaukset");
-  //let li = document.createElement("li");
-  //ul.appendChild(li);
-
-  /*let viiteSarjat = {}
-  for (let sarja of data.sarjat) {
-    sarja.id = sarja.kesto;
-  }
-  */
 
   let kohdeLomake = document.forms[0];
-  let pohjaSarjat = Array.from(data.sarjat);
   let ekatKentat = kohdeLomake[0];
 
+  /**
+   * Tässä funktiossa järjestetään joukkueet aakkosjärjestykseen sekä järjestetään joukkeiden jäsenet sisäisesti aakkosjärjestykseen
+   * @var {Object} joukkueJarjestys  - kopio pohjadatan joukkueista
+   */
   let jarjestyswrapperi = function jarjestyswrapperi() {
     // Tehdään kopio joukkueista ja sisäiset kopioit jokaisen joukkueen jäsenistä jotta niiden järjestäminen ei sekoita alkuperäistä dataa
   let joukkueJarjestys = Array.from(data.joukkueet);
@@ -82,8 +85,9 @@ function start(data) {
 		return false;
 	}
 
+  // Tällä funktiolla järjestetään joukkueiden jäsenet aakkosjärjestykseen
   function jasenienJarjestys(a,b){
-    let tulos = a.localeCompare(b, 'fi', {sensitivity: 'base'});
+    let tulos = a.trim().localeCompare(b.trim(), 'fi', {sensitivity: 'base'});
     if (tulos) {
       return tulos;
     }
@@ -99,7 +103,8 @@ function start(data) {
   console.log(joukkueJarjestys);
   
   
-  // Tässä kaksoissilmukassa luodaan kaikki joukkuelistaukset ja jokaiselle joukkueelle kaikki jäsenet
+  // Tässä kaksoissilmukassa luodaan kaikki joukkuelistaukset ja jokaiselle joukkueelle kaikki jäsenet.
+  // Sarjojen id:tä käytetään löytämään pohjadatasta niiden kestot.
   let ul = document.createElement("ul");
   for (let joukkue of joukkueJarjestys) {
     //console.log(joukkue.nimi);
@@ -122,21 +127,15 @@ function start(data) {
   };
 
 
+  /**
+   * Tässä funktiossa käsitellään submit - tapahtuma lomakkeelle, tehden custom - validiustarkastukset ja sitten rakentaen
+   * uuden joukkueen annetuilla syötteillä, ja lisäten sen sivun päädyssä olevaan joukkuelistaan
+   * @param {Object} e - tapahtuman laukaissut objekti
+   * @var {Array} jasenTaulukko - väliaikainen säilytystaulukko, jonne kaikki validit jäsensyötteet laitetaan, ja jonka avulla lisättävän joukkueen jäsenet asetetaan
+   * @var {Object} lisattavaJoukkue - joukkue, jonka tiedot saadaan lomakkeen syötteistä ja joka lisätään joukkueet dataan
+   */
   let lomakkeenTarkistukset = function lomakkeenTarkistukset(e) {
     e.preventDefault();
-    
-    //console.log("Lomakkeen submitti toimi!");
-    // Etsitään lomakkeen jäsenet
-    let jasenTaulukko = [];
-    for (let syotekentta of kohdeLomake) {
-      if (syotekentta.name == "jasen") {
-        if (syotekentta.value != "") {jasenTaulukko.push(syotekentta.value);}
-      }
-    }
-    // jos missään jäsenessä ei ollut sisältöä, ei jatketa joukkueen lisäystä
-    // TODO: virheilmoitukset "Joukkueella on altava vähintään yksi jäsen" setCustomValidity() ja reportValidity()
-    if (jasenTaulukko.length<1) {return;}
-    console.log(jasenTaulukko);
 
     //Katsotaan, että lisättävän joukkueen nimi ei ole tyhjä ja se ei jo löydy pohjadatasta
     //TODO: reportValidity();
@@ -150,6 +149,28 @@ function start(data) {
         return;
       }
     }
+    // Katsotaan, että joukkuen nimi on vähintään 2 merkkiä pitkä ilman whitespacea
+    if (kohdeLomake[1].value.replace(/\s/g, "").length<2) {
+      console.log("Nimen pitää olla vähintään 2 merkkiä pitkä!");
+      return;
+    }
+    
+    //console.log("Lomakkeen submitti toimi!");
+    // Etsitään lomakkeen jäsenet
+    let jasenTaulukko = [];
+    for (let syotekentta of kohdeLomake) {
+      if (syotekentta.name == "jasen") {
+        if (syotekentta.value != "") {jasenTaulukko.push(syotekentta.value);}
+      }
+    }
+    // jos missään jäsenessä ei ollut sisältöä, ei jatketa joukkueen lisäystä
+    // TODO: virheilmoitukset "Joukkueella on altava vähintään yksi jäsen" setCustomValidity() ja reportValidity()
+    if (jasenTaulukko.length<1) {
+      console.log("Yhtään jäsentä ei ole syötetty!");
+      return;}
+    console.log(jasenTaulukko);
+
+    
 
     //Kun joukkueen syötteet on todettu validiksi, muodostetaan siitä lisättävä tietorakenne
     let lisattavaJoukkue = {};
@@ -164,6 +185,7 @@ function start(data) {
         }
       }
     }
+    // Asetetaan joukkueelle jäsenet, sekä muut vaaditut tiedot
     lisattavaJoukkue.jasenet = jasenTaulukko;
     lisattavaJoukkue.leimaustapa = [0];
     lisattavaJoukkue.rastileimaukset = [];
@@ -174,13 +196,17 @@ function start(data) {
 	  for (let i=0; i<listanPituus; i++) {
 	  	kohdeLista.children[0].remove();
 	  }
-    // Kun uusi joukkue on lisätty tietorakenteeseen ja lista putsattu, kutsutaan uudestaan järjestysfunktiota
+    // Kun uusi joukkue on lisätty tietorakenteeseen ja lista putsattu, kutsutaan uudestaan järjestysfunktiota ja resetöidään lomake
     jarjestyswrapperi();
+    kohdeLomake.reset();
+    kohdeLomake[2].checked = true;
   };
 
+  // Lisätään tapahtumankäsittelijä, joka hoitaa joukkueen lisäyksen ja custom - validiustarkastukset
   kohdeLomake.addEventListener("submit", lomakkeenTarkistukset);
 
   // Järjestetään sarjojen kopiotaulukko aakkosjärjestykseen
+  let pohjaSarjat = Array.from(data.sarjat);
   pohjaSarjat.sort((a, b) => {
     return a.nimi.localeCompare(b.nimi, 'fi', {sensitivity: 'base'});
   });
@@ -198,8 +224,9 @@ function start(data) {
   }
 
   // Asetetaan sarjalle oletusvalinta
-  kohdeLomake[2].checked = "checked";
+  kohdeLomake[2].checked = true;
 
+  // Kutsutaan apufunktiota, joka järjestää joukkueet
   jarjestyswrapperi();
 
   
