@@ -51,8 +51,9 @@ function alustus() {
  * 
  * @param {Object} data - pohjadata
  * @var {Object} kohdeLista - lomake, josta syötteet otetaan uuden joukkueen lisäämiseksi
- * @var {Array} pohjaSarjat - sarjat, jotka järjestetään ja asetetaan lomakkeeseen
  * @var {Object} ekatKentat - lomakkeen eka fieldset elementti, joka sisältää nimen ja sarjat
+ * @var {Array} pohjaSarjat - sarjat, jotka järjestetään ja asetetaan lomakkeeseen
+ * @var {Array} jasenKentat - kentät, jonne lomakkeessa voi syöttää jäsenien nimet
  * 
  */
 function start(data) {
@@ -130,47 +131,30 @@ function start(data) {
   /**
    * Tässä funktiossa käsitellään submit - tapahtuma lomakkeelle, tehden custom - validiustarkastukset ja sitten rakentaen
    * uuden joukkueen annetuilla syötteillä, ja lisäten sen sivun päädyssä olevaan joukkuelistaan
-   * @param {Object} e - tapahtuman laukaissut objekti
+   * @param {Object} e - tapahtuma, joka kutsui funktiota
    * @var {Array} jasenTaulukko - väliaikainen säilytystaulukko, jonne kaikki validit jäsensyötteet laitetaan, ja jonka avulla lisättävän joukkueen jäsenet asetetaan
    * @var {Object} lisattavaJoukkue - joukkue, jonka tiedot saadaan lomakkeen syötteistä ja joka lisätään joukkueet dataan
    */
   let lomakkeenTarkistukset = function lomakkeenTarkistukset(e) {
     e.preventDefault();
 
-    //Katsotaan, että lisättävän joukkueen nimi ei ole tyhjä ja se ei jo löydy pohjadatasta
-    //TODO: reportValidity();
-    if (kohdeLomake[1].value.trim() == "") {
-      console.log("Joukkueen nimi oli tyhjä!");
-      return;
-    }
-    for (let vertausJoukkue of data.joukkueet) {
-      if (kohdeLomake[1].value.trim().localeCompare(vertausJoukkue.nimi.trim(), 'fi', {sensitivity: 'base'}) == 0) {
-        console.log("Löytyi olemassa oleva nimi!");
-        return;
-      }
-    }
-    // Katsotaan, että joukkuen nimi on vähintään 2 merkkiä pitkä ilman whitespacea
-    if (kohdeLomake[1].value.replace(/\s/g, "").length<2) {
-      console.log("Nimen pitää olla vähintään 2 merkkiä pitkä!");
-      return;
-    }
+    nimenTarkistus(kohdeLomake[1]);
     
-    //console.log("Lomakkeen submitti toimi!");
-    // Etsitään lomakkeen jäsenet
+    // Otetaan talteen jäsen-kenttien sisällöt
     let jasenTaulukko = [];
-    for (let syotekentta of kohdeLomake) {
-      if (syotekentta.name == "jasen") {
-        if (syotekentta.value != "") {jasenTaulukko.push(syotekentta.value);}
-      }
+    for (let jasenKentta of jasenKentat) {
+        if (jasenKentta.value != "") {
+          jasenTaulukko.push(jasenKentta.value);
+        }
     }
-    // jos missään jäsenessä ei ollut sisältöä, ei jatketa joukkueen lisäystä
-    // TODO: virheilmoitukset "Joukkueella on altava vähintään yksi jäsen" setCustomValidity() ja reportValidity()
+    // jos missään jäsenessä ei ollut sisältöä, ei jatketa joukkueen lisäystä.
     if (jasenTaulukko.length<1) {
-      console.log("Yhtään jäsentä ei ole syötetty!");
+      console.log("Yhtään jäsentä ei ole syötetty");
+      jasenKentat[0].setCustomValidity("Yhtään jäsentä ei ole syötetty");
+      jasenKentat[0].reportValidity();
       return;}
     console.log(jasenTaulukko);
 
-    
 
     //Kun joukkueen syötteet on todettu validiksi, muodostetaan siitä lisättävä tietorakenne
     let lisattavaJoukkue = {};
@@ -200,10 +184,67 @@ function start(data) {
     jarjestyswrapperi();
     kohdeLomake.reset();
     kohdeLomake[2].checked = true;
+    localStorage.setItem("TIEA2120-vt3-2023", JSON.stringify(data));
+  };
+
+  /**
+   * Tässä funktiossa tehdään joukkueen nimen tarkastukset sitten kun käyttäjä vaihtaa kentästä pois.
+   * Jos kaikki tarkastukset menee läpi, nollataan virheilmoitus
+   * @param {Object} e - tapahtuma, joka kutsui funktiota
+   */
+  let nimenTarkistus = function nimenTarkistus(e) {
+    // Katsotaan, että lisättävän joukkueen nimi ei ole tyhjä
+    if (kohdeLomake[1].value.trim() == "") {
+      console.log("Joukkueen nimi ei voi olla tyhjä");
+      kohdeLomake[1].setCustomValidity("Joukkueen nimi ei voi olla tyhjä");
+      kohdeLomake[1].reportValidity();
+      return;
+    }
+    // Katsotaan, että joukkuen nimi on vähintään 2 merkkiä pitkä ilman whitespacea
+    if (kohdeLomake[1].value.replace(/\s/g, "").length<2) {
+      console.log("Nimen pitää olla vähintään 2 merkkiä pitkä ilman välilyöntejä");
+      kohdeLomake[1].setCustomValidity("Nimen pitää olla vähintään 2 merkkiä pitkä ilman välilyöntejä");
+      kohdeLomake[1].reportValidity();
+      return;
+    }
+    //Katsotaan, että lisättävän joukkueen nimi ei ole jo olemassa
+    for (let vertausJoukkue of data.joukkueet) {
+      if (kohdeLomake[1].value.trim().localeCompare(vertausJoukkue.nimi.trim(), 'fi', {sensitivity: 'base'}) == 0) {
+        console.log("Joukkueen nimi on jo olemassa");
+        kohdeLomake[1].setCustomValidity("Joukkueen nimi on jo olemassa");
+        kohdeLomake[1].reportValidity();
+        return;
+      }
+    }  
+    kohdeLomake[1].setCustomValidity("");
+  };
+
+  /**
+   * Tällä funktiolla nollataan virheilmoitukset jäsenkentistä, kun käyttäjä vaihtaa kentästä pois. Jos kentät eivät muutoksien jälkeen täytä vaatimuksia,
+   * lomakkeen submit - tapahtumassa asetetaan jäsenet uudestaan virheellisiksi
+   * @param {Object} e tapahtuma, joka kutsui funktiota
+   */
+  let jasenTarkistus = function jasenTarkistus(e) {
+    for (let jasenKentta of jasenKentat) {
+      jasenKentta.setCustomValidity("");
+    }
   };
 
   // Lisätään tapahtumankäsittelijä, joka hoitaa joukkueen lisäyksen ja custom - validiustarkastukset
   kohdeLomake.addEventListener("submit", lomakkeenTarkistukset);
+
+  // Lisätään tapahtumankäsittelijä, joka hoitaa custom tarkistukset joukkueen nimi-kentälle
+  kohdeLomake[0].addEventListener("change", nimenTarkistus);
+
+  // Etsitään lomakkeen jäsenet, ja asetetaan niille tapahtumankäsittelijä joka nollaa virheilmoitukset kentästä pois vaihtaessa jotta lomakkeen
+  // tarkastusfunktiota voi kutsua
+  let jasenKentat = [];
+  for (let syotekentta of kohdeLomake) {
+    if (syotekentta.name == "jasen") {
+      jasenKentat.push(syotekentta);
+      syotekentta.addEventListener("change", jasenTarkistus);
+    }
+  }
 
   // Järjestetään sarjojen kopiotaulukko aakkosjärjestykseen
   let pohjaSarjat = Array.from(data.sarjat);

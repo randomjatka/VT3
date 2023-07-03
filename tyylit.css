@@ -27,7 +27,7 @@ input {
 }
 
 p {
-   margin-left: 1%;
+   margin-left: 2%;
    display: inline;
 }
 
@@ -35,12 +35,16 @@ fieldset:first-child>label {
    float: right;
    clear: both;
    padding-top: 0%;
-   width: 30%;
+   /*! width: 30%; */
 }
 
 fieldset:first-child>label:nth-child(2) {
    width: 97%;
    margin-bottom: 5%;
+}
+
+input[type="radio"] {
+   min-width: 0%;
 }
 
 input[type="submit"] {
